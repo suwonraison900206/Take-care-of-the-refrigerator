@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.web.server.repo.BoardDao">
+
+    <!--  게시글 전체 조회  -->
+    <select id="selectAll" resultType="boardsimple">
+        select board_id,
+            title,
+            nickname,
+            create_at,
+            thumbnail_image,
+            cooking_time,
+            grade
+        from boards join users on boards.user_id = users.user_id
+    </select>
+
+    <!--  게시글 번호로 조회  -->
+    <select id="selectOneBoardByBoardId" parameterType="int" resultType="board">
+        select *
+        from boards
+        where board_id=#{boardId}
+    </select>
+
+    <select id="selectStepsInBoardByBoardId" parameterType="int" resultType="stepofboard">
+        select step_number, image, description
+        from steps_of_boards
+        where board_id = #{boardId}
+    </select>
+
+    <!--  게시글 작성  -->
+    <insert id="insertBoard" parameterType="board">
+        <selectKey order="AFTER" resultType="int" keyProperty="boardId">
+            select max(board_id) from boards
+        </selectKey>
+        insert into boards (user_id, title, ingredient, content, grade, cooking_time, thumbnail_image)
+        values (#{userId}, #{title}, #{ingredient}, #{content}, #{grade}, #{cookingTime}, #{thumbnailImage})
+    </insert>
+
+    <!--  게시글 내 단계 저장  -->
+    <insert id="insertStep" parameterType="stepofboard">
+        insert into steps_of_boards (board_id, image, description, step_number)
+        values (#{boardId}, #{image}, #{description}, #{stepNumber})
+    </insert>
+
+</mapper>
